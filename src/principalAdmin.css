@@ -66,7 +66,7 @@ body, html {
   padding: 5px 10px;
   border-radius: 30px;
   background-color: white;
-  max-width: 350px;
+  max-width: 500px; /* Aumenta solo el ancho horizontal */
   width: 100%;
   position: relative;
   z-index: 1000;
@@ -102,6 +102,7 @@ body, html {
   max-height: 200px;
   overflow-y: auto;
   width: 100%;
+  max-width: 500px; /* Coincide con el ancho de la barra de búsqueda */
   margin-top: 5px;
   z-index: 1001;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -122,15 +123,8 @@ body, html {
   color: #333;
 }
 
-.search-results .user-item:last-child {
-  border-bottom: none;
-}
-
-.search-results .user-item:hover {
-  background-color: #f5faff;
-}
-
-.search-results .user-item div {
+/* Contenedor de nombre e ID para apilarlos verticalmente */
+.user-info {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -147,6 +141,7 @@ body, html {
   font-size: 13px;
 }
 
+/* Botón de Ver Detalles */
 .search-results .user-item button {
   background-color: #002f6c;
   color: white;
@@ -230,6 +225,7 @@ body, html {
   .search-container {
     margin-bottom: 10px;
     width: 100%;
+    max-width: 100%; /* Ajuste para pantallas pequeñas */
   }
 
   .nav-links {

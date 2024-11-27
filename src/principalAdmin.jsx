@@ -70,10 +70,8 @@ const PrincipalAdmin = () => {
                   {usuarios.map((usuario, index) => (
                     <li key={index} className="user-item">
                       <div className="user-info">
-                        <strong>Nombre:</strong> {usuario.nombre}
-                      </div>
-                      <div className="user-id">
-                        <strong>ID Usuario:</strong> {usuario.id_usuario}
+                        <span className="user-name"><strong>Nombre:</strong> {usuario.nombre}</span>
+                        <span className="user-id"><strong>ID Usuario:</strong> {usuario.id_usuario}</span>
                       </div>
                       <button
                         onClick={() => {
