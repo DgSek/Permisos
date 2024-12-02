@@ -10,35 +10,64 @@ const PrincipalAdmin = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const navigate = useNavigate();
 
-  const buscarUsuarioPorID = async (id) => {
-    if (!id) {
+  const buscarUsuario = async (queryText) => {
+    if (!queryText) {
       setUsuarios([]);
       return;
     }
 
     try {
-      const q = query(
+      // Crear consulta para buscar por ID de usuario
+      const idQuery = query(
         collection(db, 'empleados'),
-        where('id_usuario', '>=', id),
-        where('id_usuario', '<=', id + '\uf8ff')
+        where('id_usuario', '>=', queryText),
+        where('id_usuario', '<=', queryText + '\uf8ff')
       );
 
-      const querySnapshot = await getDocs(q);
+      // Crear consulta para buscar por nombre
+      const nombreQuery = query(
+        collection(db, 'empleados'),
+        where('nombre', '>=', queryText),
+        where('nombre', '<=', queryText + '\uf8ff')
+      );
 
-      if (!querySnapshot.empty) {
-        setUsuarios(querySnapshot.docs.map((doc) => doc.data()));
-      } else {
-        setUsuarios([]);
-      }
+      // Ejecutar ambas consultas
+      const [idSnapshot, nombreSnapshot] = await Promise.all([
+        getDocs(idQuery),
+        getDocs(nombreQuery),
+      ]);
+
+      // Combinar resultados sin duplicados
+      const usuariosPorId = idSnapshot.docs.map((doc) => doc.data());
+      const usuariosPorNombre = nombreSnapshot.docs.map((doc) => doc.data());
+
+      const resultadosUnicos = [
+        ...new Map(
+          [...usuariosPorId, ...usuariosPorNombre].map((usuario) => [
+            usuario.id_usuario,
+            usuario,
+          ])
+        ).values(),
+      ];
+
+      setUsuarios(resultadosUnicos);
     } catch (error) {
-      console.error("Error al buscar los documentos:", error);
+      console.error('Error al buscar los documentos:', error);
       setUsuarios([]);
     }
   };
 
   useEffect(() => {
-    buscarUsuarioPorID(searchQuery.trim());
+    buscarUsuario(searchQuery.trim());
   }, [searchQuery]);
+
+  // Nueva función para manejar el cambio en el campo de búsqueda
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    // Convertir la primera letra a mayúscula
+    const capitalizedValue = value.charAt(0).toUpperCase() + value.slice(1);
+    setSearchQuery(capitalizedValue);
+  };
 
   return (
     <div>
@@ -53,9 +82,9 @@ const PrincipalAdmin = () => {
         <div className="search-container">
           <input
             type="text"
-            placeholder="Buscar por ID de usuario"
+            placeholder="Buscar por ID de usuario o nombre"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleSearchChange} // Usar la nueva función aquí
           />
           <button type="submit">
             <i className="fa fa-search"></i>
@@ -70,8 +99,12 @@ const PrincipalAdmin = () => {
                   {usuarios.map((usuario, index) => (
                     <li key={index} className="user-item">
                       <div className="user-info">
-                        <span className="user-name"><strong>Nombre:</strong> {usuario.nombre}</span>
-                        <span className="user-id"><strong>ID Usuario:</strong> {usuario.id_usuario}</span>
+                        <span className="user-name">
+                          <strong>Nombre:</strong> {usuario.nombre}
+                        </span>
+                        <span className="user-id">
+                          <strong>ID Usuario:</strong> {usuario.id_usuario}
+                        </span>
                       </div>
                       <button
                         onClick={() => {
