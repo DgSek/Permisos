@@ -8,6 +8,44 @@ const SolicitudPermiso = () => {
   const location = useLocation();
   const { id_usuario, nombre, puesto: puestoEmpleado } = location.state || {};
 
+  // Datos de jefes inmediatos y puestos (extraídos de las imágenes)
+  const jefesInmediatos = [
+    "ARQ. JESUS RAFAEL SANCHEZ SEBREROS",
+    "C.P ALVARO MARTIN PEREZ MANJARREZ",
+    "LIC. MARITZA JOANA LOPEZ MARTINEZ",
+    "LIC. SAUL MADERO TORRES",
+    "LIC. LUIS PEREZ VALENZUELA",
+    "C.P DAVID ALEJANDRO SOTO GRIJALVA",
+    "PSIC. LAURA FANI SILVA RIOS",
+    "MDE. CLAUDIA ISABEL PONCE OROZCO",
+    "ING. RODRIGO GARCIA HERNANDEZ",
+    "ING. MARCO ANTONIO PEREZ ELIAS",
+    "MTRO. GABRIEL RIVERA SOLIS",
+    "LIC. LUCIA HERNANDEZ SOTO",
+    "LIC. SAMANTHA FATIMA SANTANA HERNANDEZ",
+    "LIC. CELIA YADIRA SOTELO CASTRO",
+    "LIC. DULCE JAQUELINE CORRAL CUADRAS"
+  ];
+
+  const puestosJefes = [
+    "DIRECTOR GENERAL",
+    "SUBDIRECCION DE SERVICIOS ADMINISTRATIVOS",
+    "SUBDIRECCION ACADEMICA",
+    "SUBDIRECCION DE PLANEACION Y VINCULACION",
+    "JEFE DE DEPARTAMENTO DE MATERIAL Y SERVICIOS",
+    "JEFE DE DEPARTAMENTO DE COMPUTO",
+    "JEFE DE DEPARTAMENTO DE RECURSOS FINANCIEROS",
+    "JEFE DE DEPARTAMENTO DE RECURSOS HUMANOS",
+    "JEFE DE DEPARTAMENTO DE SERVICIOS ESCOLARES",
+    "JEFE DE DEPARTAMENTO DE EXTENSION Y VINCULACION",
+    "JEFE DE DEPARTAMENTO DE PLANEACION, PROGRAMACION Y EVALUACION",
+    "JEFE DE DEPARTAMENTO DE EXTRA ESCOLARES E INNOVACION Y CALIDAD",
+    "JEFE DE DIVISION DE INGENIERIA INDUSTRIAL",
+    "JEFE DE DIVISION DE INGENIERIA CIVIL",
+    "JEFE DE DIVISION DE LA LICENCIATURA EN ADMINISTRACION",
+    "JEFE DE DIVISION DE INGENIERIA EN SISTEMAS COMPUTACIONALES"
+  ];
+
   const [motivoFalta, setMotivoFalta] = useState('');
   const [nombreJefe, setNombreJefe] = useState('');
   const [puestoJefe, setPuestoJefe] = useState('');
@@ -15,7 +53,7 @@ const SolicitudPermiso = () => {
   const [fecha, setFecha] = useState('');
   const [autorizacion, setAutorizacion] = useState('');
   const [tipoPermiso, setTipoPermiso] = useState('');
-  const [horasFalta, setHorasFalta] = useState(''); // Nuevo estado para las horas
+  const [horasFalta, setHorasFalta] = useState('');
   const [jefeAutoriza, setJefeAutoriza] = useState('');
   const [archivosAdjuntos, setArchivosAdjuntos] = useState([]);
   const [puesto, setPuesto] = useState(puestoEmpleado || '');
@@ -114,13 +152,27 @@ const SolicitudPermiso = () => {
           <label>Puesto del empleado</label>
           <input type="text" value={puesto} readOnly />
           <label>Nombre del jefe inmediato</label>
-          <input type="text" value={nombreJefe} onChange={(e) => setNombreJefe(e.target.value)} />
+          <select value={nombreJefe} onChange={(e) => setNombreJefe(e.target.value)}>
+            <option value="">Selecciona un jefe</option>
+            {jefesInmediatos.map((jefe, index) => (
+              <option key={index} value={jefe}>
+                {jefe}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="form-group">
           <label>Horario de trabajo</label>
           <input type="text" value={horarioLaboral} onChange={(e) => setHorarioLaboral(e.target.value)} />
           <label>Puesto del jefe inmediato</label>
-          <input type="text" value={puestoJefe} onChange={(e) => setPuestoJefe(e.target.value)} />
+          <select value={puestoJefe} onChange={(e) => setPuestoJefe(e.target.value)}>
+            <option value="">Selecciona un puesto</option>
+            {puestosJefes.map((puesto, index) => (
+              <option key={index} value={puesto}>
+                {puesto}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="form-group">
           <label>Fecha</label>

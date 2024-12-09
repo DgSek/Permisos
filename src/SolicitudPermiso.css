@@ -3,15 +3,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 3vw;
+  padding: 2rem;
   background-color: #f4f4f9;
   min-height: 100vh;
+  width: 100%;
 }
 
 /* Título */
 h2 {
-  margin: 1vh 0;
-  font-size: 2.5vw;
+  margin: 1rem 0;
+  font-size: 2rem;
   text-align: center;
   color: #4a90e2;
   font-weight: bold;
@@ -19,21 +20,21 @@ h2 {
 
 /* Subtítulo */
 p {
-  font-size: 1.5vw;
+  font-size: 1rem;
   text-align: center;
   color: #777;
-  margin-bottom: 3vh;
+  margin-bottom: 2rem;
 }
 
 /* Estilo del formulario */
 .form-permiso {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2vh 2vw;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem 2rem;
   width: 100%;
-  max-width: 700px;
+  max-width: 900px;
   background-color: #fff;
-  padding: 2vw;
+  padding: 2rem;
   border-radius: 10px;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
 }
@@ -42,23 +43,25 @@ p {
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5vh;
+  gap: 0.5rem;
 }
 
 /* Etiquetas de formulario */
 .form-group label {
-  font-size: 1.2vw;
+  font-size: 1rem;
   color: #555;
+  font-weight: bold;
 }
 
 /* Campos de entrada y selección */
 .form-group input,
 .form-group select {
-  padding: 0.8vw;
+  padding: 0.8rem;
   border-radius: 5px;
   border: 1px solid #ccc;
-  font-size: 1vw;
+  font-size: 1rem;
   transition: border-color 0.3s;
+  width: 100%;
 }
 
 .form-group input:focus,
@@ -67,56 +70,37 @@ p {
   outline: none;
 }
 
-/* Posición y espaciado de los botones */
-.btn-adjuntar {
-  grid-column: 2 / 3;
-  grid-row: 5 / 6;
-  background-color: #4a90e2;
-  color: #fff;
-  border: none;
-  padding: 1vw;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1vw;
-  text-align: center;
-  transition: background-color 0.3s, box-shadow 0.3s;
-  width: 100%;
-  margin-top: 2.5vh; /* Espacio adicional para bajar el botón */
-}
-
+/* Botones */
+.btn-adjuntar,
 .btn-enviar {
-  grid-column: 2 / 3;
-  grid-row: 6 / 7;
   background-color: #4a90e2;
   color: #fff;
   border: none;
-  padding: 1vw;
+  padding: 1rem;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 1vw;
+  font-size: 1rem;
   text-align: center;
   transition: background-color 0.3s, box-shadow 0.3s;
   width: 100%;
-  margin-top: 2.5vh; /* Espacio adicional para bajar el botón */
 }
 
-.btn-enviar:hover,
-.btn-adjuntar:hover {
+.btn-adjuntar:hover,
+.btn-enviar:hover {
   background-color: #357abd;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Estilo de la lista de archivos adjuntos */
 .file-list {
-  margin-top: 2vh;
-  width: 100%;
   grid-column: span 2;
+  margin-top: 1rem;
 }
 
 .file-list h4 {
-  font-size: 1.2vw;
+  font-size: 1.2rem;
   color: #4a90e2;
-  margin-bottom: 1vh;
+  margin-bottom: 0.5rem;
 }
 
 .file-list ul {
@@ -125,41 +109,86 @@ p {
 }
 
 .file-list li {
-  font-size: 1vw;
+  font-size: 1rem;
   color: #333;
-  padding: 0.5vh 0;
+  padding: 0.5rem 0;
   border-bottom: 1px solid #ddd;
 }
 
 /* Adaptación para pantallas pequeñas */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+  .form-permiso {
+    grid-template-columns: 1fr; /* Mantener una sola columna en pantallas pequeñas */
+    gap: 1rem;
+    padding: 1rem;
+  }
+
   h2 {
-    font-size: 5vw;
+    font-size: 1.5rem;
   }
 
   p {
-    font-size: 3.5vw;
+    font-size: 0.9rem;
+  }
+
+  .btn-adjuntar,
+  .btn-enviar {
+    font-size: 0.9rem;
+    padding: 0.8rem;
   }
 
   .form-group label {
-    font-size: 3vw;
+    font-size: 0.9rem;
   }
 
   .form-group input,
   .form-group select {
-    font-size: 3vw;
-  }
-
-  .btn-enviar, .btn-adjuntar {
-    font-size: 3vw;
-    padding: 2vw;
+    font-size: 0.9rem;
   }
 
   .file-list h4 {
-    font-size: 3vw;
+    font-size: 1rem;
   }
 
   .file-list li {
-    font-size: 2.5vw;
+    font-size: 0.9rem;
+  }
+}
+
+/* Adaptación para pantallas grandes */
+@media (min-width: 1200px) {
+  .form-permiso {
+    max-width: 1000px;
+  }
+
+  h2 {
+    font-size: 2.5rem;
+  }
+
+  p {
+    font-size: 1.2rem;
+  }
+
+  .form-group label {
+    font-size: 1rem;
+  }
+
+  .form-group input,
+  .form-group select {
+    font-size: 1rem;
+  }
+
+  .btn-adjuntar,
+  .btn-enviar {
+    font-size: 1.1rem;
+    padding: 1.2rem;
+  }
+
+  .file-list h4 {
+    font-size: 1.5rem;
+  }
+
+  .file-list li {
+    font-size: 1.2rem;
   }
 }

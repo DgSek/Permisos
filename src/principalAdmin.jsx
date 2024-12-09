@@ -142,7 +142,7 @@ const PrincipalAdmin = () => {
             )}
           </div>
           <a href="#contacto">CONTACTO</a>
-          <a href="/preguntas">PREGUNTAS</a>
+          <a href="#/preguntas">PREGUNTAS</a>
         </div>
       </div>
     </div>
