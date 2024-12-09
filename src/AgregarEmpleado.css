@@ -1,74 +1,124 @@
 /* Contenedor principal */
 .agregar-empleado-container {
-    max-width: 500px;
-    margin: auto;
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-    font-family: Arial, sans-serif;
+  max-width: 500px;
+  margin: auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+/* Título */
+.agregar-empleado-container h2 {
+  text-align: center;
+  color: #00509e;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+/* Etiquetas */
+.agregar-empleado-container label {
+  display: block;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+/* Inputs y select */
+.agregar-empleado-container input[type="email"],
+.agregar-empleado-container input[type="text"],
+.agregar-empleado-container input[type="url"],
+.agregar-empleado-container input[type="tel"],
+.agregar-empleado-container input[type="date"],
+.agregar-empleado-container select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+/* Efecto al hacer focus */
+.agregar-empleado-container input[type="email"]:focus,
+.agregar-empleado-container input[type="text"]:focus,
+.agregar-empleado-container input[type="url"]:focus,
+.agregar-empleado-container input[type="tel"]:focus,
+.agregar-empleado-container input[type="date"]:focus,
+.agregar-empleado-container select:focus {
+  border-color: #00509e;
+  outline: none;
+}
+
+/* Botón de guardar */
+.agregar-empleado-container button {
+  width: 100%;
+  padding: 10px;
+  background-color: #00509e;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+/* Efecto hover en el botón */
+.agregar-empleado-container button:hover {
+  background-color: #003f7f;
+}
+
+/* Buscador */
+.buscador {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.buscador input {
+  flex: 2; /* Incrementa el tamaño relativo del input */
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.buscador button {
+  flex: 1; /* Reduce el tamaño relativo del botón */
+  padding: 8px 10px;
+  background-color: #00509e;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 12px; /* Reduce un poco el tamaño del texto del botón */
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.buscador button:hover {
+  background-color: #003f7f;
+}
+
+/* Mensaje de estado */
+.agregar-empleado-container p {
+  text-align: center;
+  color: green;
+  font-size: 14px;
+  margin-top: -10px;
+  margin-bottom: 15px;
+}
+
+@media (max-width: 768px) {
+  .menu-lateral {
+    width: 200px; /* Reduce el tamaño del menú lateral en pantallas pequeñas */
   }
-  
-  /* Título */
-  .agregar-empleado-container h2 {
-    text-align: center;
-    color: #00509e;
-    margin-bottom: 20px;
-    font-size: 24px;
+  .reporte-contenido {
+    margin-left: 220px;
+    width: calc(100% - 220px);
+    max-height: calc(100vh - 60px); /* Ajusta la altura en dispositivos móviles */
   }
-  
-  /* Etiquetas */
-  .agregar-empleado-container label {
-    display: block;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 5px;
-    font-size: 14px;
-  }
-  
-  /* Inputs y select */
-  .agregar-empleado-container input[type="email"],
-  .agregar-empleado-container input[type="text"],
-  .agregar-empleado-container input[type="url"],
-  .agregar-empleado-container input[type="tel"],
-  .agregar-empleado-container input[type="date"],
-  .agregar-empleado-container select {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 14px;
-    transition: border-color 0.3s;
-  }
-  
-  /* Efecto al hacer focus */
-  .agregar-empleado-container input[type="email"]:focus,
-  .agregar-empleado-container input[type="text"]:focus,
-  .agregar-empleado-container input[type="url"]:focus,
-  .agregar-empleado-container input[type="tel"]:focus,
-  .agregar-empleado-container input[type="date"]:focus,
-  .agregar-empleado-container select:focus {
-    border-color: #00509e;
-    outline: none;
-  }
-  
-  /* Botón de guardar */
-  .agregar-empleado-container button {
-    width: 100%;
-    padding: 10px;
-    background-color: #00509e;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  /* Efecto hover en el botón */
-  .agregar-empleado-container button:hover {
-    background-color: #003f7f;
-  }
-  
+}

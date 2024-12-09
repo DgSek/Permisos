@@ -113,3 +113,13 @@ html, body {
 .forgot-password:hover {
   color: #ddd;
 }
+@media (max-width: 768px) {
+  .menu-lateral {
+    width: 200px; /* Reduce el tamaño del menú lateral en pantallas pequeñas */
+  }
+  .reporte-contenido {
+    margin-left: 220px;
+    width: calc(100% - 220px);
+    max-height: calc(100vh - 60px); /* Ajusta la altura en dispositivos móviles */
+  }
+}

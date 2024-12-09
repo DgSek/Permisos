@@ -11,6 +11,11 @@ const DetallesEmpleados = () => {
   const [areaNombre, setAreaNombre] = useState("No disponible");
   const [departamentoNombre, setDepartamentoNombre] = useState("No disponible");
   const [loading, setLoading] = useState(true);
+  const [contadores, setContadores] = useState({
+    Personal: 0,
+    Sindical: 0,
+    Parcial: 0,
+  });
 
   useEffect(() => {
     const fetchEmployeeData = async () => {
@@ -27,7 +32,7 @@ const DetallesEmpleados = () => {
 
           if (!querySnapshotUsuarios.empty) {
             const userData = querySnapshotUsuarios.docs[0].data();
-            
+
             const qEmpleados = query(
               collection(db, 'empleados'),
               where('id_usuario', '==', id_usuario)
@@ -42,6 +47,9 @@ const DetallesEmpleados = () => {
               // Obtener nombres de área y departamento
               await fetchAreaNombre(empleadoData.Area);
               await fetchDepartamentoNombre(empleadoData.Area, empleadoData.Departamento);
+
+              // Contar solicitudes por tipo
+              await contarSolicitud(id_usuario);
             }
           }
         } catch (error) {
@@ -71,20 +79,18 @@ const DetallesEmpleados = () => {
     }
   };
 
-  // Función para obtener el nombre del departamento, incluyendo el caso especial para A4/Docentes
+  // Función para obtener el nombre del departamento
   const fetchDepartamentoNombre = async (areaId, departamentoId) => {
     try {
       let departamentoNombre = "No disponible";
 
       if (areaId === "A4") {
-        // Caso especial para el área A4, buscar en la colección "Docentes" en el documento "A5"
         const docenteDoc = await getDoc(doc(db, 'departamentos', areaId, 'Docentes', 'A5'));
         if (docenteDoc.exists()) {
           const docenteData = docenteDoc.data();
           departamentoNombre = Object.keys(docenteData).find(key => docenteData[key] === departamentoId) || "No disponible";
         }
       } else {
-        // Caso general para otras áreas
         const departamentoDoc = await getDoc(doc(db, 'departamentos', areaId));
         if (departamentoDoc.exists()) {
           const departamentoData = departamentoDoc.data();
@@ -95,6 +101,37 @@ const DetallesEmpleados = () => {
       setDepartamentoNombre(departamentoNombre);
     } catch (error) {
       console.error("Error al obtener el nombre del departamento:", error);
+    }
+  };
+
+  // Función para contar solicitudes por tipo
+  const contarSolicitud = async (id_usuario) => {
+    try {
+      const qSolicitudes = query(
+        collection(db, 'solicitud'),
+        where('id_usuario', '==', id_usuario)
+      );
+
+      const querySnapshotSolicitud = await getDocs(qSolicitudes);
+
+      const contadores = { Personal: 0, Sindical: 0, Parcial: 0 };
+
+      querySnapshotSolicitud.forEach((doc) => {
+        const data = doc.data();
+        console.log("Documento encontrado:", data); // Depuración
+
+        // Usar `tipo_permiso` en lugar de `tipo`
+        if (contadores[data.tipo_permiso] !== undefined) {
+          contadores[data.tipo_permiso]++;
+        } else {
+          console.warn("Tipo de permiso desconocido o faltante:", data.tipo_permiso); // Depuración
+        }
+      });
+
+      setContadores(contadores); // Actualizar los contadores en el estado
+      console.log("Contadores actualizados:", contadores); // Depuración
+    } catch (error) {
+      console.error("Error al contar solicitudes:", error);
     }
   };
 
@@ -130,6 +167,12 @@ const DetallesEmpleados = () => {
                     ? new Date(empleados.fecha_contratacion.seconds * 1000).toLocaleDateString() 
                     : "No disponible"}
                 </p>
+              </div>
+              <div className="info-subseccion">
+                <h2>Permisos solicitados</h2>
+                <p><strong>Personal:</strong> {contadores.Personal}</p>
+                <p><strong>Sindical:</strong> {contadores.Sindical}</p>
+                <p><strong>Parcial:</strong> {contadores.Parcial}</p>
               </div>
               <div className="info-subseccion">
                 <h2>Información de contacto</h2>

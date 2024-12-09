@@ -57,7 +57,6 @@ const Bienvenida = () => {
           </div>
         )}
         <div className="nav-links">
-          <a href="#servicios">SERVICIOS</a>
           <a href="#contacto">CONTACTO</a>
           <button onClick={handlePreguntasClick}>PREGUNTAS</button> {/* Botón modificado */}
           <button className="register-button" onClick={handleRegistroClick}>REGISTRO</button>

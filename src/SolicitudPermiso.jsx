@@ -15,6 +15,7 @@ const SolicitudPermiso = () => {
   const [fecha, setFecha] = useState('');
   const [autorizacion, setAutorizacion] = useState('');
   const [tipoPermiso, setTipoPermiso] = useState('');
+  const [horasFalta, setHorasFalta] = useState(''); // Nuevo estado para las horas
   const [jefeAutoriza, setJefeAutoriza] = useState('');
   const [archivosAdjuntos, setArchivosAdjuntos] = useState([]);
   const [puesto, setPuesto] = useState(puestoEmpleado || '');
@@ -48,8 +49,28 @@ const SolicitudPermiso = () => {
     setFecha('');
     setAutorizacion('');
     setTipoPermiso('');
+    setHorasFalta('');
     setJefeAutoriza('');
     setArchivosAdjuntos([]);
+  };
+
+  const handleHorasChange = (e) => {
+    let input = e.target.value;
+
+    // Insertar ":" automáticamente en las posiciones correctas
+    if (input.length === 2 || input.length === 8) {
+      input += ":";
+    }
+    // Insertar "-" automáticamente en la posición correcta
+    if (input.length === 5) {
+      input += "-";
+    }
+
+    // Validar que solo se permitan números, ":" y "-"
+    const regex = /^[0-9:-]*$/;
+    if (regex.test(input)) {
+      setHorasFalta(input);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -63,11 +84,12 @@ const SolicitudPermiso = () => {
         nombre_jefe_inmediato: nombreJefe,
         puesto_jefe_inmediato: puestoJefe,
         horario_laboral: horarioLaboral,
-        fecha_solicitud: fecha, // Guardamos la fecha como string
+        fecha_solicitud: fecha,
         autorizacion_goce_sueldo: autorizacion,
         tipo_permiso: tipoPermiso,
+        horas_falta: tipoPermiso === 'Parcial' ? horasFalta : null, // Guardar solo si es parcial
         jefe_autoriza_permiso: jefeAutoriza,
-        archivos_adjuntos: archivosAdjuntos.map((file) => file.name)
+        archivos_adjuntos: archivosAdjuntos.map((file) => file.name),
       });
       alert('Solicitud enviada exitosamente');
       resetForm();
@@ -116,17 +138,29 @@ const SolicitudPermiso = () => {
             <option value="">Selecciona</option>
             <option value="Sindical">Sindical</option>
             <option value="Personal">Personal</option>
+            <option value="Parcial">Parcial</option>
           </select>
+          {tipoPermiso === 'Parcial' && (
+            <div className="form-group">
+              <label>Horas de la falta (formato 7:00-9:00)</label>
+              <input
+                type="text"
+                value={horasFalta}
+                onChange={handleHorasChange}
+                placeholder="Ejemplo: 7:00-9:00"
+              />
+            </div>
+          )}
           <label>Jefe que autoriza el permiso</label>
           <input type="text" value={jefeAutoriza} onChange={(e) => setJefeAutoriza(e.target.value)} />
         </div>
         <div className="form-group button-container">
           <label className="btn-adjuntar">
-            <input 
-              type="file" 
-              multiple 
-              onChange={handleFileChange} 
-              style={{ display: 'none' }} 
+            <input
+              type="file"
+              multiple
+              onChange={handleFileChange}
+              style={{ display: 'none' }}
             />
             Adjuntar archivo
           </label>
