@@ -26,9 +26,9 @@ const Login = () => {
       const user = userCredential.user;
       console.log('Inicio de sesión exitoso:', user);
 
-      // Buscar el documento del usuario en la colección usuarios con base en el correo
-      const usuariosRef = collection(db, 'usuarios');
-      const q = query(usuariosRef, where('correo', '==', user.email));
+      // Buscar el documento del usuario en la colección empleados con base en el correo
+      const empleadosRef = collection(db, 'empleados');
+      const q = query(empleadosRef, where('correo', '==', user.email));
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
@@ -40,11 +40,11 @@ const Login = () => {
         if (tipoUsuario === 'admin') {
           // Redirigir a la pantalla PrincipalAdmin
           navigate('/principalAdmin', { state: { userData } });
-        } else if (tipoUsuario === 'user') {
+        } else if (tipoUsuario === 'usuario') {
           // Redirigir a la pantalla DetallesEmpleadosU
           navigate('/detallesEmpleadosU', { state: { id_usuario: userData.id_usuario } });
         } else {
-          // Manejar otros tipos de usuarios si es necesario
+          // Manejar otros tipos de empleados si es necesario
           console.log('Tipo de usuario no reconocido');
           setError('Tipo de usuario no reconocido.');
         }

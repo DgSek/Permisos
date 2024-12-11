@@ -11,6 +11,8 @@ const MenuLateral = () => {
   const [tituloReporte, setTituloReporte] = useState("Seleccione \"General\" para ver el reporte de permisos.");
   const [empleados, setEmpleados] = useState([]); // Lista de empleados para el combobox
   const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState(""); // Empleado seleccionado en el combobox
+  const [fechaInicio, setFechaInicio] = useState(""); // Fecha de inicio para el filtro
+  const [fechaFin, setFechaFin] = useState(""); // Fecha de fin para el filtro
 
   const areaCodes = {
     'Dirección General': 'A1',
@@ -62,8 +64,7 @@ const MenuLateral = () => {
   };
 
   const extractEmployeeNumbers = (solicitudes) => {
-    // Extraer el número de empleado después del guión en cada ID de solicitud
-    return solicitudes.map((solicitud) => solicitud.id_solicitud.split('-')[1]);
+    return solicitudes.map((solicitud) => solicitud.id_permiso.split('-')[1]);
   };
 
   const fetchEmployees = async (employeeNumbers) => {
@@ -71,13 +72,12 @@ const MenuLateral = () => {
       const empleadosRef = collection(db, 'empleados');
       const empleadosSnapshot = await getDocs(empleadosRef);
 
-      // Filtrar empleados que tengan el campo 'id_usuario' y coincidan con los números extraídos
       const empleadosData = empleadosSnapshot.docs
         .map((doc) => doc.data())
         .filter(
           (empleado) =>
-            empleado.id_usuario && // Validar que el campo 'id_usuario' existe
-            employeeNumbers.includes(empleado.id_usuario.toString()) // Comparar con los números extraídos
+            empleado.id_usuario &&
+            employeeNumbers.includes(empleado.id_usuario.toString())
         );
 
       setEmpleados(empleadosData);
@@ -94,14 +94,14 @@ const MenuLateral = () => {
       if (departmentCode) {
         solicitudesQuery = query(
           solicitudesRef,
-          where('id_solicitud', '>=', `${areaCode}${departmentCode}`),
-          where('id_solicitud', '<', `${areaCode}${departmentCode}z`)
+          where('id_permiso', '>=', `${areaCode}${departmentCode}`),
+          where('id_permiso', '<', `${areaCode}${departmentCode}z`)
         );
       } else {
         solicitudesQuery = query(
           solicitudesRef,
-          where('id_solicitud', '>=', `${areaCode}`),
-          where('id_solicitud', '<', `${areaCode}z`)
+          where('id_permiso', '>=', `${areaCode}`),
+          where('id_permiso', '<', `${areaCode}z`)
         );
       }
 
@@ -109,13 +109,13 @@ const MenuLateral = () => {
       const solicitudesData = solicitudesSnapshot.docs.map((doc) => {
         const data = doc.data();
         if (data.fecha_solicitud?.seconds) {
-          data.fecha_solicitud = new Date(data.fecha_solicitud.seconds * 1000).toLocaleDateString();
+          data.fecha_solicitud = new Date(data.fecha_solicitud.seconds * 1000).toISOString().slice(0, 10); // Convertir a formato YYYY-MM-DD
         }
         return data;
       });
 
       setSolicitudes(solicitudesData);
-      setTodasLasSolicitudes(solicitudesData); // Almacenar todas las solicitudes para resetear después
+      setTodasLasSolicitudes(solicitudesData);
       return solicitudesData;
     } catch (error) {
       console.error("Error obteniendo solicitudes: ", error);
@@ -157,15 +157,30 @@ const MenuLateral = () => {
     setEmpleadoSeleccionado(idUsuario);
 
     if (idUsuario === "") {
-      // Si se selecciona "Todos los empleados", restaurar todas las solicitudes
       setSolicitudes(todasLasSolicitudes);
     } else {
-      // Filtrar solicitudes del empleado seleccionado
       const solicitudesEmpleado = todasLasSolicitudes.filter((solicitud) =>
-        solicitud.id_solicitud.endsWith(`-${idUsuario}`)
+        solicitud.id_permiso.endsWith(`-${idUsuario}`)
       );
       setSolicitudes(solicitudesEmpleado);
     }
+  };
+
+  const handleFiltrarPorFecha = () => {
+    if (!fechaInicio || !fechaFin) {
+      alert("Por favor, seleccione un rango de fechas válido.");
+      return;
+    }
+
+    const inicio = new Date(fechaInicio);
+    const fin = new Date(fechaFin);
+
+    const solicitudesFiltradas = todasLasSolicitudes.filter((solicitud) => {
+      const fechaSolicitud = new Date(solicitud.fecha_solicitud);
+      return fechaSolicitud >= inicio && fechaSolicitud <= fin;
+    });
+
+    setSolicitudes(solicitudesFiltradas);
   };
 
   const exportToExcel = () => {
@@ -232,8 +247,27 @@ const MenuLateral = () => {
               </option>
             ))}
           </select>
-          <button onClick={exportToExcel} className="export-button">
-            Exportar a Excel
+        </div>
+
+        <div className="filtros-container">
+          <label htmlFor="fechaInicio">Fecha Inicio:</label>
+          <input
+            type="date"
+            id="fechaInicio"
+            value={fechaInicio}
+            onChange={(e) => setFechaInicio(e.target.value)}
+          />
+
+          <label htmlFor="fechaFin">Fecha Fin:</label>
+          <input
+            type="date"
+            id="fechaFin"
+            value={fechaFin}
+            onChange={(e) => setFechaFin(e.target.value)}
+          />
+
+          <button onClick={handleFiltrarPorFecha} className="filtrar-button">
+            Filtrar por Fecha
           </button>
         </div>
 
@@ -246,14 +280,18 @@ const MenuLateral = () => {
                 <p><strong>Fecha Solicitud:</strong> {solicitud.fecha_solicitud}</p>
                 <p><strong>Tipo Permiso:</strong> {solicitud.tipo_permiso}</p>
                 <p><strong>Horario Laboral:</strong> {solicitud.horario_laboral}</p>
-                <p><strong>Nombre Jefe Autoriza:</strong> {solicitud.nombre_jefe_autoriza}</p>
+                <p><strong>Nombre Jefe Autoriza:</strong> {solicitud.jefe_autoriza_permiso}</p>
                 <p><strong>Puesto Empleado:</strong> {solicitud.puesto_empleado}</p>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="mensaje-no-solicitudes">{tituloReporte}</p>
+          <p className="mensaje-no-solicitudes">No se encontraron solicitudes en el rango de fechas seleccionado.</p>
         )}
+
+        <button onClick={exportToExcel} className="export-button">
+          Exportar a Excel
+        </button>
       </div>
     </div>
   );

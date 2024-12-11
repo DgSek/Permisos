@@ -70,8 +70,26 @@ p {
   outline: none;
 }
 
+.button-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Dividir en dos columnas */
+  gap: 1rem;
+  grid-column: span 2; /* Ocupa las dos columnas del formulario */
+}
 /* Botones */
-.btn-adjuntar,
+.btn-adjuntar{
+  background-color: #4a90e2;
+  color: #fff;
+  border: none;
+  padding: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  text-align: center;
+  transition: background-color 0.3s, box-shadow 0.3s;
+  width: 100%;
+  grid-column: 1;
+}
 .btn-enviar {
   background-color: #4a90e2;
   color: #fff;
@@ -83,6 +101,16 @@ p {
   text-align: center;
   transition: background-color 0.3s, box-shadow 0.3s;
   width: 100%;
+  grid-column: 2;
+}
+
+.field-pair {
+  display: flex;
+  gap: 1rem;
+}
+
+.field-pair div {
+  flex: 1;
 }
 
 .btn-adjuntar:hover,

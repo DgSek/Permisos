@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { db } from './firebaseConfig';
-import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
 import './SolicitudPermiso.css';
 
 const SolicitudPermiso = () => {
   const location = useLocation();
-  const { id_usuario, nombre, puesto: puestoEmpleado } = location.state || {};
+  const { id_usuario, nombre, puesto, areaId, departamentoId, numeroPermiso } = location.state || {};
 
-  // Datos de jefes inmediatos y puestos (extraídos de las imágenes)
   const jefesInmediatos = [
     "ARQ. JESUS RAFAEL SANCHEZ SEBREROS",
     "C.P ALVARO MARTIN PEREZ MANJARREZ",
@@ -30,49 +29,22 @@ const SolicitudPermiso = () => {
   const puestosJefes = [
     "DIRECTOR GENERAL",
     "SUBDIRECCION DE SERVICIOS ADMINISTRATIVOS",
-    "SUBDIRECCION ACADEMICA",
     "SUBDIRECCION DE PLANEACION Y VINCULACION",
-    "JEFE DE DEPARTAMENTO DE MATERIAL Y SERVICIOS",
-    "JEFE DE DEPARTAMENTO DE COMPUTO",
-    "JEFE DE DEPARTAMENTO DE RECURSOS FINANCIEROS",
-    "JEFE DE DEPARTAMENTO DE RECURSOS HUMANOS",
-    "JEFE DE DEPARTAMENTO DE SERVICIOS ESCOLARES",
-    "JEFE DE DEPARTAMENTO DE EXTENSION Y VINCULACION",
-    "JEFE DE DEPARTAMENTO DE PLANEACION, PROGRAMACION Y EVALUACION",
-    "JEFE DE DEPARTAMENTO DE EXTRA ESCOLARES E INNOVACION Y CALIDAD",
-    "JEFE DE DIVISION DE INGENIERIA INDUSTRIAL",
-    "JEFE DE DIVISION DE INGENIERIA CIVIL",
-    "JEFE DE DIVISION DE LA LICENCIATURA EN ADMINISTRACION",
-    "JEFE DE DIVISION DE INGENIERIA EN SISTEMAS COMPUTACIONALES"
+    "SUBDIRECCION ACADEMICA"
   ];
 
   const [motivoFalta, setMotivoFalta] = useState('');
+  const [autorizacion, setAutorizacion] = useState('');
   const [nombreJefe, setNombreJefe] = useState('');
   const [puestoJefe, setPuestoJefe] = useState('');
   const [horarioLaboral, setHorarioLaboral] = useState('');
-  const [fecha, setFecha] = useState('');
-  const [autorizacion, setAutorizacion] = useState('');
+  const [fechaInicio, setFechaInicio] = useState('');
+  const [fechaFin, setFechaFin] = useState('');
   const [tipoPermiso, setTipoPermiso] = useState('');
-  const [horasFalta, setHorasFalta] = useState('');
+  const [horasFalta, setHorasFalta] = useState(null);
   const [jefeAutoriza, setJefeAutoriza] = useState('');
+  const [puestoJefeAutoriza, setPuestoJefeAutoriza] = useState('');
   const [archivosAdjuntos, setArchivosAdjuntos] = useState([]);
-  const [puesto, setPuesto] = useState(puestoEmpleado || '');
-
-  useEffect(() => {
-    if (!puesto && id_usuario) {
-      const obtenerPuesto = async () => {
-        try {
-          const empleadoDoc = await getDoc(doc(db, 'empleados', id_usuario));
-          if (empleadoDoc.exists()) {
-            setPuesto(empleadoDoc.data().puesto || '');
-          }
-        } catch (error) {
-          console.error("Error al obtener el puesto del empleado:", error);
-        }
-      };
-      obtenerPuesto();
-    }
-  }, [id_usuario, puesto]);
 
   const handleFileChange = (event) => {
     const files = Array.from(event.target.files);
@@ -84,37 +56,56 @@ const SolicitudPermiso = () => {
     setNombreJefe('');
     setPuestoJefe('');
     setHorarioLaboral('');
-    setFecha('');
+    setFechaInicio('');
+    setFechaFin('');
     setAutorizacion('');
     setTipoPermiso('');
-    setHorasFalta('');
+    setHorasFalta(null);
     setJefeAutoriza('');
+    setPuestoJefeAutoriza('');
     setArchivosAdjuntos([]);
   };
 
   const handleHorasChange = (e) => {
     let input = e.target.value;
 
-    // Insertar ":" automáticamente en las posiciones correctas
     if (input.length === 2 || input.length === 8) {
       input += ":";
     }
-    // Insertar "-" automáticamente en la posición correcta
+
     if (input.length === 5) {
       input += "-";
     }
 
-    // Validar que solo se permitan números, ":" y "-"
     const regex = /^[0-9:-]*$/;
     if (regex.test(input)) {
       setHorasFalta(input);
     }
   };
 
+  const handleTipoPermisoChange = (e) => {
+    const selectedTipo = e.target.value;
+    setTipoPermiso(selectedTipo);
+
+    if (selectedTipo !== "Parcial") {
+      setHorasFalta(null);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!id_usuario || !nombre || !puesto || !areaId || !departamentoId) {
+      alert("Faltan datos del empleado. Verifique la información.");
+      return;
+    }
+
     try {
-      await addDoc(collection(db, 'solicitud'), {
+      const idPermiso = `${areaId}${departamentoId}${numeroPermiso}-${id_usuario}`;
+      const fechaSolicitud = new Date().toISOString(); // Fecha actual del sistema en formato ISO
+
+      await addDoc(collection(db, "solicitud"), {
+        id_permiso: idPermiso,
         id_usuario,
         nombre_empleado: nombre,
         puesto_empleado: puesto,
@@ -122,18 +113,21 @@ const SolicitudPermiso = () => {
         nombre_jefe_inmediato: nombreJefe,
         puesto_jefe_inmediato: puestoJefe,
         horario_laboral: horarioLaboral,
-        fecha_solicitud: fecha,
+        rango_fechas: { inicio: fechaInicio, fin: fechaFin },
         autorizacion_goce_sueldo: autorizacion,
         tipo_permiso: tipoPermiso,
-        horas_falta: tipoPermiso === 'Parcial' ? horasFalta : null, // Guardar solo si es parcial
+        horas_falta: tipoPermiso === "Parcial" ? horasFalta : null,
         jefe_autoriza_permiso: jefeAutoriza,
+        puesto_jefe_autoriza: puestoJefeAutoriza,
         archivos_adjuntos: archivosAdjuntos.map((file) => file.name),
+        fecha_solicitud: fechaSolicitud // Se añade la fecha de solicitud
       });
-      alert('Solicitud enviada exitosamente');
+
+      alert(`Solicitud enviada exitosamente con ID: ${idPermiso}`);
       resetForm();
     } catch (error) {
       console.error("Error al enviar la solicitud:", error);
-      alert('Error al enviar la solicitud');
+      alert("Error al enviar la solicitud.");
     }
   };
 
@@ -145,66 +139,119 @@ const SolicitudPermiso = () => {
         <div className="form-group">
           <label>Nombre del empleado</label>
           <input type="text" value={nombre || ''} readOnly />
-          <label>Motivo de la falta</label>
-          <input type="text" value={motivoFalta} onChange={(e) => setMotivoFalta(e.target.value)} />
-        </div>
-        <div className="form-group">
           <label>Puesto del empleado</label>
           <input type="text" value={puesto} readOnly />
-          <label>Nombre del jefe inmediato</label>
-          <select value={nombreJefe} onChange={(e) => setNombreJefe(e.target.value)}>
-            <option value="">Selecciona un jefe</option>
-            {jefesInmediatos.map((jefe, index) => (
-              <option key={index} value={jefe}>
-                {jefe}
-              </option>
-            ))}
-          </select>
         </div>
         <div className="form-group">
+          <label>Fecha de inicio</label>
+          <input
+            type="date"
+            value={fechaInicio}
+            onChange={(e) => setFechaInicio(e.target.value)}
+          />
+          <label>Fecha de fin</label>
+          <input
+            type="date"
+            value={fechaFin}
+            onChange={(e) => setFechaFin(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label>Motivo de la falta</label>
+          <input
+            type="text"
+            value={motivoFalta}
+            onChange={(e) => setMotivoFalta(e.target.value)}
+          />
           <label>Horario de trabajo</label>
-          <input type="text" value={horarioLaboral} onChange={(e) => setHorarioLaboral(e.target.value)} />
-          <label>Puesto del jefe inmediato</label>
-          <select value={puestoJefe} onChange={(e) => setPuestoJefe(e.target.value)}>
-            <option value="">Selecciona un puesto</option>
-            {puestosJefes.map((puesto, index) => (
-              <option key={index} value={puesto}>
-                {puesto}
-              </option>
-            ))}
-          </select>
+          <input
+            type="text"
+            value={horarioLaboral}
+            onChange={(e) => setHorarioLaboral(e.target.value)}
+          />
         </div>
         <div className="form-group">
-          <label>Fecha</label>
-          <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />
-          <label>Selecciona autorización</label>
-          <select value={autorizacion} onChange={(e) => setAutorizacion(e.target.value)}>
+          <label>Selecciona un tipo de permiso</label>
+          <select value={tipoPermiso} onChange={handleTipoPermisoChange}>
+            <option value="">Selecciona</option>
+            <option value="Sindical">Sindical</option>
+            <option value="Personal">Personal</option>
+            <option value="Parcial">Parcial</option>
+          </select>
+          <label>Horas de la falta</label>
+          <input
+            type="text"
+            value={horasFalta || ''}
+            onChange={handleHorasChange}
+            placeholder="Ejemplo: 7:00-9:00"
+            disabled={tipoPermiso !== "Parcial"}
+          />
+        </div>
+        <div className="form-group">
+          <label>Tipo de autorización</label>
+          <select
+            value={autorizacion}
+            onChange={(e) => setAutorizacion(e.target.value)}
+          >
             <option value="">Selecciona</option>
             <option value="Con goce de sueldo">Con goce de sueldo</option>
             <option value="Sin goce de sueldo">Sin goce de sueldo</option>
           </select>
         </div>
         <div className="form-group">
-          <label>Selecciona un tipo de permiso</label>
-          <select value={tipoPermiso} onChange={(e) => setTipoPermiso(e.target.value)}>
-            <option value="">Selecciona</option>
-            <option value="Sindical">Sindical</option>
-            <option value="Personal">Personal</option>
-            <option value="Parcial">Parcial</option>
-          </select>
-          {tipoPermiso === 'Parcial' && (
-            <div className="form-group">
-              <label>Horas de la falta (formato 7:00-9:00)</label>
-              <input
-                type="text"
-                value={horasFalta}
-                onChange={handleHorasChange}
-                placeholder="Ejemplo: 7:00-9:00"
-              />
+          <div className="field-pair">
+            <div>
+              <label>Nombre del jefe inmediato</label>
+              <select value={nombreJefe} onChange={(e) => setNombreJefe(e.target.value)}>
+                <option value="">Selecciona un jefe</option>
+                {jefesInmediatos.map((jefe, index) => (
+                  <option key={index} value={jefe}>
+                    {jefe}
+                  </option>
+                ))}
+              </select>
             </div>
-          )}
-          <label>Jefe que autoriza el permiso</label>
-          <input type="text" value={jefeAutoriza} onChange={(e) => setJefeAutoriza(e.target.value)} />
+            <div>
+              <label>Puesto del jefe inmediato</label>
+              <select value={puestoJefe} onChange={(e) => setPuestoJefe(e.target.value)}>
+                <option value="">Selecciona un puesto</option>
+                {puestosJefes.map((puesto, index) => (
+                  <option key={index} value={puesto}>
+                    {puesto}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+        <div className="form-group">
+          <div className="field-pair">
+            <div>
+              <label>Jefe que autoriza el permiso</label>
+              <select value={jefeAutoriza} onChange={(e) => setJefeAutoriza(e.target.value)}>
+                <option value="">Selecciona un jefe</option>
+                {jefesInmediatos.map((jefe, index) => (
+                  <option key={index} value={jefe}>
+                    {jefe}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label>Puesto del jefe que autoriza</label>
+              <select
+                value={puestoJefeAutoriza}
+                onChange={(e) => setPuestoJefeAutoriza(e.target.value)}
+              >
+                <option value="">Selecciona un puesto</option>
+                {puestosJefes.map((puesto, index) => (
+                  <option key={index} value={puesto}>
+                    {puesto}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
         <div className="form-group button-container">
           <label className="btn-adjuntar">
@@ -212,22 +259,14 @@ const SolicitudPermiso = () => {
               type="file"
               multiple
               onChange={handleFileChange}
-              style={{ display: 'none' }}
+              style={{ display: "none" }}
             />
             Adjuntar archivo
           </label>
-          <button type="submit" className="btn-enviar">Enviar</button>
+          <button type="submit" className="btn-enviar">
+            Enviar
+          </button>
         </div>
-        {archivosAdjuntos.length > 0 && (
-          <div className="file-list">
-            <h4>Archivos adjuntados:</h4>
-            <ul>
-              {archivosAdjuntos.map((file, index) => (
-                <li key={index}>{file.name}</li>
-              ))}
-            </ul>
-          </div>
-        )}
       </form>
     </div>
   );

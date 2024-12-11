@@ -24,7 +24,7 @@ const PrincipalAdmin = () => {
         where('id_usuario', '<=', queryText + '\uf8ff')
       );
 
-      // Crear consulta para buscar por nombre
+      // Crear consulta para buscar por nombre completo
       const nombreQuery = query(
         collection(db, 'empleados'),
         where('nombre', '>=', queryText),
@@ -84,7 +84,7 @@ const PrincipalAdmin = () => {
             type="text"
             placeholder="Buscar por ID de usuario o nombre"
             value={searchQuery}
-            onChange={handleSearchChange} // Usar la nueva función aquí
+            onChange={handleSearchChange}
           />
           <button type="submit">
             <i className="fa fa-search"></i>

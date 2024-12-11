@@ -23,34 +23,23 @@ const DetallesEmpleados = () => {
 
       if (id_usuario) {
         try {
-          const qUsuarios = query(
-            collection(db, 'usuarios'),
+          const qEmpleados = query(
+            collection(db, 'empleados'),
             where('id_usuario', '==', id_usuario)
           );
 
-          const querySnapshotUsuarios = await getDocs(qUsuarios);
+          const querySnapshotEmpleados = await getDocs(qEmpleados);
 
-          if (!querySnapshotUsuarios.empty) {
-            const userData = querySnapshotUsuarios.docs[0].data();
+          if (!querySnapshotEmpleados.empty) {
+            const empleadoData = querySnapshotEmpleados.docs[0].data();
+            setEmpleados(empleadoData);
 
-            const qEmpleados = query(
-              collection(db, 'empleados'),
-              where('id_usuario', '==', id_usuario)
-            );
+            // Obtener nombres de área y departamento
+            await fetchAreaNombre(empleadoData.Area);
+            await fetchDepartamentoNombre(empleadoData.Area, empleadoData.Departamento);
 
-            const querySnapshotEmpleados = await getDocs(qEmpleados);
-
-            if (!querySnapshotEmpleados.empty) {
-              const empleadoData = querySnapshotEmpleados.docs[0].data();
-              setEmpleados(empleadoData);
-
-              // Obtener nombres de área y departamento
-              await fetchAreaNombre(empleadoData.Area);
-              await fetchDepartamentoNombre(empleadoData.Area, empleadoData.Departamento);
-
-              // Contar solicitudes por tipo
-              await contarSolicitud(id_usuario);
-            }
+            // Contar solicitudes por tipo
+            await contarSolicitud(id_usuario);
           }
         } catch (error) {
           console.error("Error al obtener datos:", error);
@@ -118,18 +107,12 @@ const DetallesEmpleados = () => {
 
       querySnapshotSolicitud.forEach((doc) => {
         const data = doc.data();
-        console.log("Documento encontrado:", data); // Depuración
-
-        // Usar `tipo_permiso` en lugar de `tipo`
         if (contadores[data.tipo_permiso] !== undefined) {
           contadores[data.tipo_permiso]++;
-        } else {
-          console.warn("Tipo de permiso desconocido o faltante:", data.tipo_permiso); // Depuración
         }
       });
 
       setContadores(contadores); // Actualizar los contadores en el estado
-      console.log("Contadores actualizados:", contadores); // Depuración
     } catch (error) {
       console.error("Error al contar solicitudes:", error);
     }
@@ -183,7 +166,10 @@ const DetallesEmpleados = () => {
                 onClick={() => navigate('/solicitudPermiso', { state: { 
                   id_usuario: empleados.id_usuario, 
                   nombre: empleados.nombre, 
-                  puesto: empleados.puesto
+                  puesto: empleados.puesto,
+                  areaId: empleados.Area, 
+                  departamentoId: empleados.Departamento, 
+                  numeroPermiso: contadores.Personal + contadores.Sindical + contadores.Parcial + 1 
                 }})}
                 className="btn-solicitar-permiso"
               >

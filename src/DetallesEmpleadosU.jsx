@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 import './DetallesEmpleadosU.css';
 
@@ -9,6 +9,11 @@ const DetallesEmpleadosU = () => {
   const [empleado, setEmpleado] = useState(null);
   const [areaNombre, setAreaNombre] = useState("No disponible");
   const [departamentoNombre, setDepartamentoNombre] = useState("No disponible");
+  const [contadores, setContadores] = useState({
+    Personal: 0,
+    Sindical: 0,
+    Parcial: 0,
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,7 +22,6 @@ const DetallesEmpleadosU = () => {
 
       if (id_usuario) {
         try {
-          // Obtener datos del empleado basado en id_usuario
           const qEmpleados = query(
             collection(db, 'empleados'),
             where('id_usuario', '==', id_usuario)
@@ -32,6 +36,9 @@ const DetallesEmpleadosU = () => {
             // Obtener nombres de área y departamento
             await fetchAreaNombre(empleadoData.Area);
             await fetchDepartamentoNombre(empleadoData.Area, empleadoData.Departamento);
+
+            // Contar permisos solicitados
+            await contarSolicitud(id_usuario);
           } else {
             console.error("No se encontró información del empleado.");
           }
@@ -52,20 +59,66 @@ const DetallesEmpleadosU = () => {
   // Función para obtener el nombre del área
   const fetchAreaNombre = async (areaId) => {
     try {
-      // Implementación de lógica para el área
-      setAreaNombre("Nombre del área (Simulado)"); // Cambiar según la lógica
+      const areaDoc = await getDoc(doc(db, 'areas', 'doc'));
+      if (areaDoc.exists()) {
+        const areaData = areaDoc.data();
+        const nombreArea = Object.keys(areaData).find(key => areaData[key] === areaId);
+        setAreaNombre(nombreArea || "No disponible");
+      }
     } catch (error) {
       console.error("Error al obtener el nombre del área:", error);
+      setAreaNombre("No disponible");
     }
   };
 
   // Función para obtener el nombre del departamento
   const fetchDepartamentoNombre = async (areaId, departamentoId) => {
     try {
-      // Implementación de lógica para el departamento
-      setDepartamentoNombre("Nombre del departamento (Simulado)"); // Cambiar según la lógica
+      let nombreDepartamento = "No disponible";
+
+      if (areaId === "A4") {
+        const docenteDoc = await getDoc(doc(db, 'departamentos', areaId, 'Docentes', 'A5'));
+        if (docenteDoc.exists()) {
+          const docenteData = docenteDoc.data();
+          nombreDepartamento = Object.keys(docenteData).find(key => docenteData[key] === departamentoId) || "No disponible";
+        }
+      } else {
+        const departamentoDoc = await getDoc(doc(db, 'departamentos', areaId));
+        if (departamentoDoc.exists()) {
+          const departamentoData = departamentoDoc.data();
+          nombreDepartamento = Object.keys(departamentoData).find(key => departamentoData[key] === departamentoId) || "No disponible";
+        }
+      }
+
+      setDepartamentoNombre(nombreDepartamento);
     } catch (error) {
       console.error("Error al obtener el nombre del departamento:", error);
+      setDepartamentoNombre("No disponible");
+    }
+  };
+
+  // Función para contar solicitudes por tipo
+  const contarSolicitud = async (id_usuario) => {
+    try {
+      const qSolicitudes = query(
+        collection(db, 'solicitud'),
+        where('id_usuario', '==', id_usuario)
+      );
+
+      const querySnapshotSolicitud = await getDocs(qSolicitudes);
+
+      const contadores = { Personal: 0, Sindical: 0, Parcial: 0 };
+
+      querySnapshotSolicitud.forEach((doc) => {
+        const data = doc.data();
+        if (contadores[data.tipo_permiso] !== undefined) {
+          contadores[data.tipo_permiso]++;
+        }
+      });
+
+      setContadores(contadores);
+    } catch (error) {
+      console.error("Error al contar solicitudes:", error);
     }
   };
 
@@ -103,12 +156,18 @@ const DetallesEmpleadosU = () => {
                 </p>
               </div>
               <div className="info-subseccion">
+                <h2>Permisos solicitados</h2>
+                <p><strong>Personal:</strong> {contadores.Personal}</p>
+                <p><strong>Sindical:</strong> {contadores.Sindical}</p>
+                <p><strong>Parcial:</strong> {contadores.Parcial}</p>
+              </div>
+              <div className="info-subseccion">
                 <h2>Información de contacto</h2>
                 <p><strong>Teléfono:</strong> {empleado.numero_telefono || "No disponible"}</p>
                 <p><strong>Correo electrónico:</strong> {empleado.correo || "No disponible"}</p>
               </div>
               <a 
-                href="/mnt/data/FORMATO-NVOPERMISO-2024.pdf" 
+                href="/Permisos/FORMATO-NVOPERMISO-2024.pdf" 
                 download="FORMATO-NVOPERMISO-2024.pdf"
                 className="btn-solicitar-permiso"
               >

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { db } from './firebaseConfig';
-import { collection, doc, getDocs, query, where, updateDoc, Timestamp } from 'firebase/firestore';
+import { collection, doc, getDocs, query, where, updateDoc, addDoc, Timestamp } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import './AgregarEmpleado.css';
 
@@ -79,41 +79,24 @@ const AgregarEmpleado = () => {
         const empleadoDoc = querySnapshot.docs[0];
         const empleadoData = empleadoDoc.data();
 
-        // Validar el tipo de dato de fecha_contratacion
-        let fechaContratacionString = '';
-        if (empleadoData.fecha_contratacion) {
-          if (empleadoData.fecha_contratacion.toDate) {
-            // Si es un Timestamp, conviértelo a string
-            fechaContratacionString = empleadoData.fecha_contratacion
-              .toDate()
-              .toISOString()
-              .split('T')[0];
-          } else {
-            // Si ya es un string, úsalo directamente
-            fechaContratacionString = empleadoData.fecha_contratacion;
-          }
-        }
-
-        const areaEncontrada = Object.keys(areaCodes).find(
-          (area) => areaCodes[area] === empleadoData.Area
-        );
-        const departamentoEncontrado = areaEncontrada
-          ? Object.keys(departmentCodes[areaEncontrada] || {}).find(
-              (dep) => departmentCodes[areaEncontrada][dep] === empleadoData.Departamento
-            )
-          : '';
-
-        // Llenar los campos con los datos del empleado
         setIdUsuario(empleadoData.id_usuario || '');
         setNombre(empleadoData.nombre || '');
         setCorreo(empleadoData.correo || '');
         setTipoUsuario(empleadoData.tipo_usuario || 'usuario');
-        setFechaContratacion(fechaContratacionString);
+        setFechaContratacion(
+          empleadoData.fecha_contratacion?.toDate()?.toISOString().split('T')[0] || ''
+        );
         setPuesto(empleadoData.puesto || '');
         setFoto(empleadoData.Foto || '');
         setNumeroTelefono(empleadoData.numero_telefono || '');
-        setAreaSeleccionada(areaEncontrada || '');
-        setDepartamentoSeleccionado(departamentoEncontrado || '');
+        setAreaSeleccionada(
+          Object.keys(areaCodes).find((key) => areaCodes[key] === empleadoData.Area) || ''
+        );
+        setDepartamentoSeleccionado(
+          Object.keys(departmentCodes[areaSeleccionada] || {}).find(
+            (key) => departmentCodes[areaSeleccionada][key] === empleadoData.Departamento
+          ) || ''
+        );
         setDocenteSeleccionado(empleadoData.Docente || '');
         setTipoEmpleadoSeleccionado(empleadoData.TipoEmpleado || '');
         setEmpleadoEncontrado(true);
@@ -121,6 +104,7 @@ const AgregarEmpleado = () => {
       } else {
         alert('Empleado no encontrado');
         setEmpleadoEncontrado(false);
+        setDocumentoId(null);
       }
     } catch (error) {
       console.error('Error al buscar el empleado:', error);
@@ -129,24 +113,14 @@ const AgregarEmpleado = () => {
 
   const handleGuardar = async () => {
     try {
-      if (!documentoId) {
-        console.error('Error: No se encontró un ID de documento para actualizar.');
-        alert('Hubo un error al actualizar el empleado.');
-        return;
-      }
-
-      // Ajustar la fecha para considerar la zona horaria local
-      const fechaContratacionTimestamp = fechaContratacion
-        ? Timestamp.fromDate(new Date(fechaContratacion + 'T00:00:00'))
-        : null;
-
-      const empleadoDoc = doc(db, 'empleados', documentoId);
-      await updateDoc(empleadoDoc, {
+      const empleadoData = {
         id_usuario: idUsuario,
         nombre,
         correo,
         tipo_usuario: tipoUsuario,
-        fecha_contratacion: fechaContratacionTimestamp,
+        fecha_contratacion: fechaContratacion
+          ? Timestamp.fromDate(new Date(fechaContratacion + 'T00:00:00'))
+          : null,
         puesto,
         Foto,
         numero_telefono: numeroTelefono,
@@ -155,9 +129,17 @@ const AgregarEmpleado = () => {
           (departmentCodes[areaSeleccionada] || {})[departamentoSeleccionado] || '',
         Docente: docenteSeleccionado || null,
         TipoEmpleado: tipoEmpleadoSeleccionado,
-      });
+      };
 
-      alert('Empleado actualizado correctamente');
+      if (empleadoEncontrado && documentoId) {
+        const empleadoDoc = doc(db, 'empleados', documentoId);
+        await updateDoc(empleadoDoc, empleadoData);
+        alert('Empleado actualizado correctamente');
+      } else {
+        await addDoc(collection(db, 'empleados'), empleadoData);
+        alert('Empleado agregado correctamente');
+      }
+
       navigate('/PrincipalAdmin');
     } catch (error) {
       console.error('Error al guardar el empleado:', error);
