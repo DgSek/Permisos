@@ -1,0 +1,105 @@
+.detalles-empleados {
+  padding: 40px 20px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.encabezado {
+  text-align: center;
+  color: #4a90e2;
+  font-size: 24px;
+  margin-bottom: 30px;
+}
+
+.perfil-contenedor {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.info-general {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  width: 500px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.info-secundaria {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 500px;
+}
+
+.info-subseccion {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow-wrap: break-word;
+}
+
+.info-general h2, .info-subseccion h2 {
+  font-size: 18px;
+  color: #4a90e2;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.empleado-foto-grande {
+  width: 150px; /* Aumenta el tamaño de la imagen */
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.empleado-nombre {
+  font-size: 18px; /* Tamaño similar a "Teléfono" */
+  font-weight: bold;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.btn-solicitar-permiso {
+  background-color: #4a90e2;
+  color: #ffffff;
+  border: none;
+  padding: 10px 15px;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  align-self: center;
+  width: 100%;
+}
+
+.btn-solicitar-permiso:hover {
+  background-color: #357ab8;
+}
+
+/* Adaptación para dispositivos móviles */
+@media (max-width: 768px) {
+  .perfil-contenedor {
+    flex-direction: column;
+  }
+
+  .info-general, .info-secundaria {
+    width: 90%;
+  }
+}

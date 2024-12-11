@@ -1,0 +1,165 @@
+/* Contenedor principal */
+.solicitud-permiso {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3vw;
+  background-color: #f4f4f9;
+  min-height: 100vh;
+}
+
+/* Título */
+h2 {
+  margin: 1vh 0;
+  font-size: 2.5vw;
+  text-align: center;
+  color: #4a90e2;
+  font-weight: bold;
+}
+
+/* Subtítulo */
+p {
+  font-size: 1.5vw;
+  text-align: center;
+  color: #777;
+  margin-bottom: 3vh;
+}
+
+/* Estilo del formulario */
+.form-permiso {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2vh 2vw;
+  width: 100%;
+  max-width: 700px;
+  background-color: #fff;
+  padding: 2vw;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Grupo de formulario */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5vh;
+}
+
+/* Etiquetas de formulario */
+.form-group label {
+  font-size: 1.2vw;
+  color: #555;
+}
+
+/* Campos de entrada y selección */
+.form-group input,
+.form-group select {
+  padding: 0.8vw;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1vw;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #4a90e2;
+  outline: none;
+}
+
+/* Posición y espaciado de los botones */
+.btn-adjuntar {
+  grid-column: 2 / 3;
+  grid-row: 5 / 6;
+  background-color: #4a90e2;
+  color: #fff;
+  border: none;
+  padding: 1vw;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1vw;
+  text-align: center;
+  transition: background-color 0.3s, box-shadow 0.3s;
+  width: 100%;
+  margin-top: 2.5vh; /* Espacio adicional para bajar el botón */
+}
+
+.btn-enviar {
+  grid-column: 2 / 3;
+  grid-row: 6 / 7;
+  background-color: #4a90e2;
+  color: #fff;
+  border: none;
+  padding: 1vw;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1vw;
+  text-align: center;
+  transition: background-color 0.3s, box-shadow 0.3s;
+  width: 100%;
+  margin-top: 2.5vh; /* Espacio adicional para bajar el botón */
+}
+
+.btn-enviar:hover,
+.btn-adjuntar:hover {
+  background-color: #357abd;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilo de la lista de archivos adjuntos */
+.file-list {
+  margin-top: 2vh;
+  width: 100%;
+  grid-column: span 2;
+}
+
+.file-list h4 {
+  font-size: 1.2vw;
+  color: #4a90e2;
+  margin-bottom: 1vh;
+}
+
+.file-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.file-list li {
+  font-size: 1vw;
+  color: #333;
+  padding: 0.5vh 0;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Adaptación para pantallas pequeñas */
+@media (max-width: 480px) {
+  h2 {
+    font-size: 5vw;
+  }
+
+  p {
+    font-size: 3.5vw;
+  }
+
+  .form-group label {
+    font-size: 3vw;
+  }
+
+  .form-group input,
+  .form-group select {
+    font-size: 3vw;
+  }
+
+  .btn-enviar, .btn-adjuntar {
+    font-size: 3vw;
+    padding: 2vw;
+  }
+
+  .file-list h4 {
+    font-size: 3vw;
+  }
+
+  .file-list li {
+    font-size: 2.5vw;
+  }
+}
